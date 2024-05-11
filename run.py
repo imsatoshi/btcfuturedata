@@ -33,13 +33,13 @@ with open(filename, 'a', newline='') as csvfile:
             continue
         else:
             writer.writerow([d['timestamp'], d['sumOpenInterest'], d['sumOpenInterestValue']])
-            print(f"数据 {d['timestamp']} 已成功写入！")
+            print(f"btc future data {d['timestamp']} ok！")
             n += 1
 
     if n > 0:
-        print(f"数据已成功写入到 {filename} 文件中！")
+        print(f"data has been written into {filename} ！")
     else:
-        print(f"数据已存在，无需写入！")
+        print(f"already has data, no need to write！")
 
 
 # visualize the data in the csv file using pandas

@@ -14,7 +14,7 @@ if not os.path.exists(filename):
 
 symbol = "BTCUSDT"
 period = "5m"
-limit = "500"
+limit = "100"
 contract="PERPETUAL"
 
 csvMap = {

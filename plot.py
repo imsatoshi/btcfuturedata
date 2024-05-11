@@ -152,11 +152,9 @@ for m in markets:
             continue
         print(m)
 
-        statuscode = write_to_csv(symbol)
-        # filename = "./csvs/{}.csv".format(symbol)
-        # figure_plot(filename, symbol)
+        filename = "./csvs/{}.csv".format(symbol)
+        figure_plot(filename, symbol)
 
-print(len(symbols))
 
 repo_path = '/root/btcfuturedata'
 repo = Repo(repo_path)

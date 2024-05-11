@@ -3,6 +3,7 @@ import os
 import csv
 import pandas as pd
 import matplotlib.pyplot as plt
+from git import Repo
 
 os.chdir('/root/btcfuturedata')
 symbol = "BTCUSDT"
@@ -47,3 +48,10 @@ pdata['timestamp'] = pd.to_datetime(pdata['timestamp'], unit='ms')
 pdata.set_index('timestamp', inplace=True)
 pdata.plot(subplots=True, figsize=(10, 10))
 plt.savefig('btc_openinteresthist.png')
+
+
+repo_path = '/root/btcfuturedata'
+repo = Repo(repo_path)
+repo.git.add(all=True)
+repo.git.commit("-m", "auto submit")
+repo.git.push()

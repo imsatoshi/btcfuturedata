@@ -15,7 +15,7 @@ url = f'https://fapi.binance.com/futures/data/openInterestHist?symbol={symbol}&p
 oi_data = requests.get(url)
 oi_json = oi_data.json()
 
-filename = 'btc_openinteresthist.csv'
+filename = 'btc_future.csv'
 if not os.path.exists(filename):
     fff = open(filename, 'w', newline='')
     fff.write('timestamp,sumOpenInterest,sumOpenInterestValue\n')

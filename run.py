@@ -157,7 +157,7 @@ for m in markets:
 # plot btc future data
 for s in ['BTC', "ETH", "BNB"]:
     filename = "./csvs/{}USDT.csv".format(s)
-    figure_plot(filename, symbol)
+    figure_plot(filename, s)
 
 
 repo_path = '/root/btcfuturedata'

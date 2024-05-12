@@ -98,7 +98,7 @@ def figure_plot(filename, symbol, basepath="./figures/"):
     pdata.set_index('timestamp', inplace=True)
 
     # 合约持仓
-    openInterestHist="sumOpenInterest,sumOpenInterestValue".split(',')
+    openInterestHist="sumOpenInterest,sumOpenInterestValue,futuresPrice".split(',')
     plt.figure()
     pdata[openInterestHist].plot(subplots=True)
     plt.savefig(basepath+symbol+'_openinteresthist.png', dpi=300)
@@ -153,10 +153,12 @@ for m in markets:
         print(m)
 
         statuscode = write_to_csv(symbol)
-        # filename = "./csvs/{}.csv".format(symbol)
-        # figure_plot(filename, symbol)
 
-print(len(symbols))
+# plot btc future data
+for s in ['BTC', "ETH", "BNB"]:
+    filename = "./csvs/{}USDT.csv".format(s)
+    figure_plot(filename, symbol)
+
 
 repo_path = '/root/btcfuturedata'
 repo = Repo(repo_path)

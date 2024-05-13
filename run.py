@@ -1,4 +1,5 @@
 import os
+import requests
 import pbinance
 import pandas as pd
 import ccxt
@@ -194,13 +195,13 @@ for m in markets:
 
 if len(newHighList) > 0:
     for s in newHighList:
+        message = ""
         data = pd.read_csv("./csvs/{}.csv".format(s))
         last_data = data.iloc[-1]
-        # print(s)
-        for c in cols:
-            # print("{}:{}".format(c, last_data[c]))
-            pass
 
+        for c in cols:
+            message += "{}:\t{}\n".format(c, last_data[c])
+        requests.post("https://api.day.app/Rn4sQCRDQr3TYNaBuKoGZe/{}/{}".format(s, message))
 
 # plot btc future data
 # for s in ['BTC', "ETH", "BNB"]:

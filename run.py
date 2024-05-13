@@ -111,7 +111,7 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
     if pd.isna(last_data["sumOpenInterestValue"]):
         last_data = pdata.iloc[-2]
 
-    print(float(pdata.iloc[-1]["sumOpenInterestValue"]), float(max_sumopeninterestvalue))
+    # print(float(pdata.iloc[-1]["sumOpenInterestValue"]), float(max_sumopeninterestvalue))
 
     return float(pdata.iloc[-1]["sumOpenInterestValue"]) > float(max_sumopeninterestvalue)
 
@@ -196,9 +196,10 @@ if len(newHighList) > 0:
     for s in newHighList:
         data = pd.read_csv("./csvs/{}.csv".format(s))
         last_data = data.iloc[-1]
-        print(s)
+        # print(s)
         for c in cols:
-            print("{}:{}".format(c, last_data[c]))
+            # print("{}:{}".format(c, last_data[c]))
+            pass
 
 
 # plot btc future data

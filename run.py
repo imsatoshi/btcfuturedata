@@ -1,6 +1,5 @@
 import os
 import pbinance
-
 import pandas as pd
 import ccxt
 import matplotlib.pyplot as plt
@@ -72,7 +71,7 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
     
     pdata = pdata.sort_values("timestamp", ascending=True)
 
-    print(len(timestamps))
+
     for tms in timestamps:
         if openInterestHistMap.get(tms, None) is not None:
             oi = openInterestHistMap[tms]
@@ -106,6 +105,11 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
             # 合约价格，开仓、高、低、关 openPrice,highPrice,lowPrice,closePrice
             pdata.loc[pdata['timestamp']==tms, ["openPrice", "highPrice", "lowPrice", "closePrice"]] = [oi[1], oi[2], oi[3], oi[4]]
     pdata[cols].to_csv(filename)
+
+    last_data = pdata.iloc[-1]
+    # check last_data sumOpenInterestVale 是不是nan
+    if pd.isna(last_data["sumOpenInterestValue"]):
+        last_data = pdata.iloc[-2]
 
     print(float(pdata.iloc[-1]["sumOpenInterestValue"]), float(max_sumopeninterestvalue))
 

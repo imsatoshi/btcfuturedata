@@ -177,7 +177,7 @@ for m in markets:
         if flag:
             continue
         print(m)
-        statuscode = write_data(symbol, subpath="csvs")
+        statuscode = write_data(symbol, subpath="csvs", limit=100)
 
 
 

@@ -177,14 +177,14 @@ for m in markets:
         if flag:
             continue
         print(m)
-        statuscode = write_data(symbol, subpath="csvs", limit=100)
+        statuscode = write_data(symbol, subpath="csvs", limit=10)
 
 
 
 # plot btc future data
-for s in ['BTC', "ETH", "BNB"]:
-    filename = "./csvs/{}USDT.csv".format(s)
-    figure_plot(filename, s)
+# for s in ['BTC', "ETH", "BNB"]:
+    # filename = "./csvs/{}USDT.csv".format(s)
+    # figure_plot(filename, s)
 
 
 repo_path = '/root/btcfuturedata'

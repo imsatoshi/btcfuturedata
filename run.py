@@ -7,9 +7,10 @@ import matplotlib.pyplot as plt
 
 from git import Repo
 os.chdir('/root/btcfuturedata')
+cols = "timestamp,sumOpenInterest,sumOpenInterestValue,topacclongShortRatio,toplongAccount,topshortAccount,topposlongShortRatio,longPosition,shortPosition,globallongShortRatio,globallongAccount,globalshortAccount,buySellRatio,sellVol,buyVol,openPrice,highPrice,lowPrice,closePrice".split(",")
+
 
 def write_data(symbol, subpath="csvs", period="5m", limit=100):
-    cols = "timestamp,sumOpenInterest,sumOpenInterestValue,topacclongShortRatio,toplongAccount,topshortAccount,topposlongShortRatio,longPosition,shortPosition,globallongShortRatio,globallongAccount,globalshortAccount,buySellRatio,sellVol,buyVol,openPrice,highPrice,lowPrice,closePrice".split(",")
     timestamps = set()
     binance = pbinance.Binance("", "")
     filename = "./{}/{}.csv".format(subpath, symbol)
@@ -20,6 +21,7 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
         existing_timestamps = non_null_rows["timestamp"].tolist()
     else:
         pdata = pd.DataFrame(columns='timestamp,sumOpenInterest,sumOpenInterestValue,topacclongShortRatio,toplongAccount,topshortAccount,topposlongShortRatio,longPosition,shortPosition,globallongShortRatio,globallongAccount,globalshortAccount,buySellRatio,sellVol,buyVol,openPrice,highPrice,lowPrice,closePrice'.split(","))
+    max_sumopeninterestvalue = pdata["sumOpenInterestValue"].max()
     openInterestHist = binance.um.market.get_openInterestHist(symbol=symbol, period=period, limit=limit)
     openInterestHistMap = {}
     for tmp in openInterestHist["data"]:
@@ -36,7 +38,7 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
 
     topLongShortPositionRatio = binance.um.market.get_topLongShortPositionRatio(symbol=symbol, period=period, limit=limit)
     topLongShortPositionRatioMap = {}
-    for tmp in topLongShortAccountRatio["data"]:
+    for tmp in topLongShortPositionRatio["data"]:
         topLongShortPositionRatioMap[tmp["timestamp"]]=tmp
         if tmp["timestamp"] not in existing_timestamps:
             timestamps.add(tmp["timestamp"])
@@ -76,7 +78,8 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
             oi = openInterestHistMap[tms]
             # 合约持仓, 合约持仓价值
             pdata.loc[pdata['timestamp']==tms, ["sumOpenInterest", "sumOpenInterestValue"]] = [oi["sumOpenInterest"], oi["sumOpenInterestValue"]]
-
+            # if oi["sumOpenInterestValue"] > max_sumopeninterestvalue:
+            #     print("new high value: ", symbol, oi["sumOpenInterestValue"])
         if topLongShortAccountRatioMap.get(tms, None) is not None:
             oi = topLongShortAccountRatioMap[tms]
             #  大户人数多空比, 大户多头占比，空头占比
@@ -104,6 +107,9 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
             pdata.loc[pdata['timestamp']==tms, ["openPrice", "highPrice", "lowPrice", "closePrice"]] = [oi[1], oi[2], oi[3], oi[4]]
     pdata[cols].to_csv(filename)
 
+    print(float(pdata.iloc[-1]["sumOpenInterestValue"]), float(max_sumopeninterestvalue))
+
+    return float(pdata.iloc[-1]["sumOpenInterestValue"]) > float(max_sumopeninterestvalue)
 
 def figure_plot(filename, symbol, basepath="./figures/"):
     # visualize the data in the csv file using pandas
@@ -163,6 +169,7 @@ exchange = ccxt.binance({
 
 symbols = []
 markets = exchange.load_markets()
+newHighList = [] 
 
 for m in markets:
     if m.endswith("/USDT:USDT"):
@@ -176,9 +183,18 @@ for m in markets:
                 flag = True
         if flag:
             continue
-        print(m)
-        statuscode = write_data(symbol, subpath="csvs", limit=10)
+        # print(m)
+        flag = write_data(symbol, subpath="csvs", limit=10)
+        if flag:
+            newHighList.append(symbol)
 
+if len(newHighList) > 0:
+    for s in newHighList:
+        data = pd.read_csv("./csvs/{}.csv".format(s))
+        last_data = data.iloc[-1]
+        print(s)
+        for c in cols:
+            print("{}:{}".format(c, last_data[c]))
 
 
 # plot btc future data
@@ -192,3 +208,4 @@ repo = Repo(repo_path)
 repo.git.add(all=True)
 repo.git.commit("-m", "auto submit!!!")
 repo.git.push()
+

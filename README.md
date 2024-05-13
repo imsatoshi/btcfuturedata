@@ -1,5 +1,0 @@
-# btcfuturedata
-
-
-volume 
-value

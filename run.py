@@ -1,11 +1,127 @@
-import ccxt
-import requests
 import os
-import csv
+import pbinance
+
 import pandas as pd
+import ccxt
 import matplotlib.pyplot as plt
+
 from git import Repo
 os.chdir('/root/btcfuturedata')
+
+def write_data(symbol, subpath="csvs", period="5m", limit=100):
+    cols = "timestamp,sumOpenInterest,sumOpenInterestValue,topacclongShortRatio,toplongAccount,topshortAccount,topposlongShortRatio,longPosition,shortPosition,globallongShortRatio,globallongAccount,globalshortAccount,buySellRatio,sellVol,buyVol,openPrice,highPrice,lowPrice,closePrice".split(",")
+    timestamps = set()
+    binance = pbinance.Binance("", "")
+    filename = "./{}/{}.csv".format(subpath, symbol)
+    existing_timestamps = []
+    if os.path.exists(filename):
+        pdata = pd.read_csv(filename)
+        non_null_rows = pdata[pdata.notna().all(axis=1)]
+        existing_timestamps = non_null_rows["timestamp"].tolist()
+    else:
+        pdata = pd.DataFrame(columns='timestamp,sumOpenInterest,sumOpenInterestValue,topacclongShortRatio,toplongAccount,topshortAccount,topposlongShortRatio,longPosition,shortPosition,globallongShortRatio,globallongAccount,globalshortAccount,buySellRatio,sellVol,buyVol,openPrice,highPrice,lowPrice,closePrice'.split(","))
+    openInterestHist = binance.um.market.get_openInterestHist(symbol=symbol, period=period, limit=limit)
+    openInterestHistMap = {}
+    for tmp in openInterestHist["data"]:
+        openInterestHistMap[tmp["timestamp"]]=tmp
+        if tmp["timestamp"] not in existing_timestamps:
+            timestamps.add(tmp["timestamp"])
+
+    topLongShortAccountRatio = binance.um.market.get_topLongShortAccountRatio(symbol=symbol, period=period, limit=limit)
+    topLongShortAccountRatioMap = {}
+    for tmp in topLongShortAccountRatio["data"]:
+        topLongShortAccountRatioMap[tmp["timestamp"]]=tmp
+        if tmp["timestamp"] not in existing_timestamps:
+            timestamps.add(tmp["timestamp"])
+
+    topLongShortPositionRatio = binance.um.market.get_topLongShortPositionRatio(symbol=symbol, period=period, limit=limit)
+    topLongShortPositionRatioMap = {}
+    for tmp in topLongShortAccountRatio["data"]:
+        topLongShortPositionRatioMap[tmp["timestamp"]]=tmp
+        if tmp["timestamp"] not in existing_timestamps:
+            timestamps.add(tmp["timestamp"])
+
+    globalLongShortAccountRatio = binance.um.market.get_globalLongShortAccountRatio(symbol=symbol, period=period, limit=limit)
+    globalLongShortAccountRatioMap = {}
+    for tmp in globalLongShortAccountRatio["data"]:
+        globalLongShortAccountRatioMap[tmp["timestamp"]]=tmp
+        if tmp["timestamp"] not in existing_timestamps:
+            timestamps.add(tmp["timestamp"])
+
+    takerlongshortRatio = binance.um.market.get_takerlongshortRatio(symbol=symbol, period=period,limit=limit)
+    takerlongshortRatioMap = {}
+    for tmp in takerlongshortRatio["data"]:
+        takerlongshortRatioMap[tmp["timestamp"]]=tmp
+        if tmp["timestamp"] not in existing_timestamps:
+            timestamps.add(tmp["timestamp"])
+
+    prices = binance.um.market.get_markPriceKlines(symbol=symbol, interval=period, limit=limit)
+    pricesMap = {}
+    for tmp in prices["data"]:
+        pricesMap[tmp[0]]=tmp
+        if tmp[0] not in existing_timestamps:
+            timestamps.add(tmp[0])
+    
+    if len(timestamps) > 0:
+        new_rows = []
+        for tst in sorted(timestamps):
+            new_rows.append({"timestamp": tst})
+        pdata = pdata._append(new_rows, ignore_index=True)
+    
+    pdata = pdata.sort_values("timestamp", ascending=True)
+
+    print(len(timestamps))
+    for tms in timestamps:
+        if openInterestHistMap.get(tms, None) is not None:
+            oi = openInterestHistMap[tms]
+            # 合约持仓, 合约持仓价值
+            pdata.loc[pdata['timestamp']==tms, ["sumOpenInterest", "sumOpenInterestValue"]] = [oi["sumOpenInterest"], oi["sumOpenInterestValue"]]
+
+        if topLongShortAccountRatioMap.get(tms, None) is not None:
+            oi = topLongShortAccountRatioMap[tms]
+            #  大户人数多空比, 大户多头占比，空头占比
+            pdata.loc[pdata['timestamp']==tms, ["topacclongShortRatio", "toplongAccount", "topshortAccount"]] = [oi["longShortRatio"], oi["longAccount"], oi["shortAccount"]]
+
+        if topLongShortPositionRatioMap.get(tms, None) is not None:
+            oi = topLongShortPositionRatioMap[tms]
+            # 大户持仓多空比， 大户持仓多头占比，大户持仓空投占比 topposlongShortRatio,longPosition,shortPosition
+            pdata.loc[pdata['timestamp']==tms, ["topposlongShortRatio", "longPosition", "shortPosition"]] = [oi["longShortRatio"], oi["longAccount"], oi["shortAccount"]]
+
+        if globalLongShortAccountRatioMap.get(tms, None) is not None:
+            oi = globalLongShortAccountRatioMap[tms]
+            # 全网多空持仓人数比, 多头占比， 空头占比 globallongShortRatio,globallongAccount,globalshortAccount
+            pdata.loc[pdata['timestamp']==tms, ["globallongShortRatio", "globallongAccount", "globalshortAccount"]] = [oi["longShortRatio"], oi["longAccount"], oi["shortAccount"]]
+
+        if takerlongshortRatioMap.get(tms, None) is not None:
+            oi = takerlongshortRatioMap[tms]
+            #合约主动买卖量  buySellRatio,sellVol,buyVol
+            pdata.loc[pdata['timestamp']==tms, ["buySellRatio", "sellVol", "buyVol"]] = [oi["buySellRatio"], oi["sellVol"], oi["buyVol"]]
+
+
+        if pricesMap.get(tms, None) is not None:
+            oi = pricesMap[tms]
+            # 合约价格，开仓、高、低、关 openPrice,highPrice,lowPrice,closePrice
+            pdata.loc[pdata['timestamp']==tms, ["openPrice", "highPrice", "lowPrice", "closePrice"]] = [oi[1], oi[2], oi[3], oi[4]]
+    pdata[cols].to_csv(filename)
+
+
+def figure_plot(filename, symbol, basepath="./figures/"):
+    # visualize the data in the csv file using pandas
+    pdata = pd.read_csv(filename)
+    pdata['timestamp'] = pd.to_datetime(pdata['timestamp'], unit='ms')
+    pdata.set_index('timestamp', inplace=True)
+    pdata["volume"] = pdata["sellVol"]+pdata["buyVol"]
+
+    # 合约持仓
+    openInterestHist="sumOpenInterest,sumOpenInterestValue".split(',')
+    openInterestHist.append("volume")
+    openInterestHist.append("closePrice")
+
+    plt.figure()
+    pdata[openInterestHist].plot(subplots=True)
+    plt.savefig(basepath+symbol+'.png', dpi=300)
+
+
 
 delists = [
     "SRM",
@@ -25,104 +141,6 @@ delists = [
     "COCOS",
     "STRAX"
 ]
-
-def write_to_csv(symbol):
-    # symbol = "BTCUSDT"
-    period = "5m"
-    limit = "100"
-    contract="PERPETUAL"
-    filename = './csvs/{}.csv'.format(symbol)
-    if not os.path.exists(filename):
-        fff = open(filename, 'w', newline='')
-        fff.write('timestamp,sumOpenInterest,sumOpenInterestValue,topacclongShortRatio,toplongAccount,topshortAccount,topposlongShortRatio,longPosition,shortPosition,globallongShortRatio,globallongAccount,globalshortAccount,basisRate,futuresPrice,basis\n')
-        fff.close()
-
-    csvMap = {
-        # 合约持仓量
-        "openInterestHist": f'https://fapi.binance.com/futures/data/openInterestHist?symbol={symbol}&period={period}&limit={limit}',
-        # 大户账户多空比
-        "topLongShortAccountRatio": f'https://fapi.binance.com/futures/data/topLongShortAccountRatio?symbol={symbol}&period={period}&limit={limit}',
-        # 大户持仓量多空比
-        "topLongShortPositionRatio": f'https://fapi.binance.com/futures/data/topLongShortPositionRatio?symbol={symbol}&period={period}&limit={limit}',
-        # 多空持仓人数比
-        "globalLongShortAccountRatio": f'https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol={symbol}&period={period}&limit={limit}',
-        # 基差
-        "basis": f'https://fapi.binance.com/futures/data/basis?pair={symbol}&contractType={contract}&period={period}&limit={limit}'
-    }
-
-    columns = [
-        "openInterestHist",
-        "topLongShortAccountRatio", 
-        "topLongShortPositionRatio",
-        "globalLongShortAccountRatio",
-        "basis"
-    ]
-
-    pdata = pd.read_csv(filename)
-    timestamps = pdata['timestamp'].tolist()
-
-    with open(filename, 'a', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        ois = []
-        
-        for col in columns:
-            url = csvMap[col]
-            oi_data = requests.get(url)
-            if oi_data.status_code != 200:
-                return oi_data.status_code
-            oi_json = oi_data.json()
-            ois.append(oi_json)
-        
-        for index in range(int(limit)):
-            line = []
-            timestamp = ois[0][index]['timestamp']
-            if timestamp in timestamps:
-                continue
-            else:
-                row = ois[0]
-                line.extend([timestamp, row[index]['sumOpenInterest'], row[index]['sumOpenInterestValue']])   # 合约持仓
-                row = ois[1]
-                line.extend([row[index]['longShortRatio'], row[index]['longAccount'], row[index]['shortAccount']]) # 大户数多空比
-                row = ois[2]
-                line.extend([row[index]['longShortRatio'], row[index]['longAccount'], row[index]['shortAccount']]) # 大户持仓多空比
-                row = ois[3]
-                line.extend([row[index]['longShortRatio'], row[index]['longAccount'], row[index]['shortAccount']]) # 多空持仓人数比
-                row = ois[4]
-                line.extend([row[index]['basisRate'], row[index]['futuresPrice'], row[index]["basis"]])  # 基差
-                writer.writerow(line)
-
-def figure_plot(filename, symbol, basepath="./figures/"):
-    # visualize the data in the csv file using pandas
-    pdata = pd.read_csv(filename)
-    pdata['timestamp'] = pd.to_datetime(pdata['timestamp'], unit='ms')
-    pdata.set_index('timestamp', inplace=True)
-
-    # 合约持仓
-    openInterestHist="sumOpenInterest,sumOpenInterestValue,futuresPrice".split(',')
-    plt.figure()
-    pdata[openInterestHist].plot(subplots=True)
-    plt.savefig(basepath+symbol+'_openinteresthist.png', dpi=300)
-    # 大户账户多空比
-    plt.figure()
-    topLongShortAccountRatio="topacclongShortRatio,toplongAccount,topshortAccount".split(',')
-    pdata[topLongShortAccountRatio].plot(subplots=True)
-    plt.savefig(basepath+symbol+'_topLongShortAccountRatio.png', dpi=300)
-    # 大户持仓量多空比
-    plt.figure()
-    topLongShortPositionRatio="topposlongShortRatio,longPosition,shortPosition".split(',')
-    pdata[topLongShortPositionRatio].plot(subplots=True)
-    plt.savefig(basepath+symbol+'_topLongShortPositionRatio.png', dpi=300)
-    # 多空持仓人数比
-    plt.figure()
-    globalLongShortAccountRatio="globallongShortRatio,globallongAccount,globalshortAccount".split(',')
-    pdata[globalLongShortAccountRatio].plot(subplots=True)
-    plt.savefig(basepath+symbol+'_globalLongShortAccountRatio.png', dpi=300)
-
-    # 基差
-    plt.figure()
-    basis="basisRate,futuresPrice,basis".split(',')
-    pdata[basis].plot(subplots=True, figsize=(20, 20))
-    plt.savefig(basepath+symbol+'_basis.png', dpi=300)
 
 
 symbolist = []
@@ -151,8 +169,9 @@ for m in markets:
         if flag:
             continue
         print(m)
+        statuscode = write_data(symbol, subpath="csvs")
 
-        statuscode = write_to_csv(symbol)
+
 
 # plot btc future data
 for s in ['BTC', "ETH", "BNB"]:

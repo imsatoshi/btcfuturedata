@@ -144,6 +144,7 @@ def figure_plot(filename, symbol, basepath="./figures/"):
 
 delists = [
     "SRM",
+    "USDC",
     "HNT",
     "TOMO",
     "CVC",

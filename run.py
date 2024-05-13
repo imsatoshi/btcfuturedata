@@ -121,6 +121,14 @@ def figure_plot(filename, symbol, basepath="./figures/"):
     pdata[openInterestHist].plot(subplots=True)
     plt.savefig(basepath+symbol+'.png', dpi=300)
 
+    # 大户多空比
+
+
+    # 大户持仓多空比
+
+
+    # 全网多空比
+
 
 
 delists = [

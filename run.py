@@ -183,7 +183,6 @@ for m in markets:
         if flag:
             continue
 
-        break
         # flagSumOpenInterestValue, flagTopacclongShortRatio, flagTopposlongShortRatio, flagGloballongShortRatio = write_data(symbol, subpath="csvs", limit=10)
         flagSumOpenInterestValue, flagGloballongShortRatio = write_data(symbol, subpath="csvs", limit=10)
         if flagSumOpenInterestValue:
@@ -196,7 +195,8 @@ for m in markets:
             newHighList.append(symbol+"-全网多空比")
 
 tz = pytz.timezone('Asia/Shanghai')
-newHighList.append("BTCUSDT")
+if len(newHighList) == 0:
+    newHighList.append("BTCUSDT")
 
 for s in newHighList:
     print(s)

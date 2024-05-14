@@ -118,25 +118,24 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
         last_data = pdata.iloc[-2]
     flagSumOpenInterestValue = float(last_data["sumOpenInterestValue"]) > float(max_sumopeninterestvalue)  # 市值
 
+    # last_data = pdata.iloc[-1]
+    # if pd.isna(last_data["topacclongShortRatio"]):
+        # last_data= pdata.iloc[-2]
 
-    last_data = pdata.iloc[-1]
-    if pd.isna(last_data["topacclongShortRatio"]):
-        last_data= pdata.iloc[-2]
+    # flagTopacclongShortRatio = float(last_data["topacclongShortRatio"]) > float(maxTopLongShortPositionRatio)   # 大户多空比
 
-    flagTopacclongShortRatio = float(last_data["topacclongShortRatio"]) > float(maxTopLongShortPositionRatio)   # 大户多空比
-
-    last_data = pdata.iloc[-1]
-    if pd.isna(last_data["topposlongShortRatio"]):
-        last_data= pdata.iloc[-2]
-    flagTopposlongShortRatio = float(last_data["topposlongShortRatio"]) > float(maxTopLongShortPositionRatio)     # 大户持仓多空比
+    # last_data = pdata.iloc[-1]
+    # if pd.isna(last_data["topposlongShortRatio"]):
+        # last_data= pdata.iloc[-2]
+    # flagTopposlongShortRatio = float(last_data["topposlongShortRatio"]) > float(maxTopLongShortPositionRatio)     # 大户持仓多空比
 
     last_data = pdata.iloc[-1]
     if pd.isna(last_data["globallongShortRatio"]):
         last_data= pdata.iloc[-2]
     flagGloballongShortRatio = float(last_data["globallongShortRatio"]) > float(maxTopLongShortPositionRatio)     # 全局多空比
-
     
-    return flagSumOpenInterestValue, flagTopacclongShortRatio, flagTopposlongShortRatio, flagGloballongShortRatio
+    return flagSumOpenInterestValue, flagGloballongShortRatio
+    # return flagSumOpenInterestValue, flagTopacclongShortRatio, flagTopposlongShortRatio, flagGloballongShortRatio
 
 
 def figure_plot(filename, symbol, basepath="./figures/"):
@@ -212,13 +211,14 @@ for m in markets:
         if flag:
             continue
 
-        flagSumOpenInterestValue, flagTopacclongShortRatio, flagTopposlongShortRatio, flagGloballongShortRatio = write_data(symbol, subpath="csvs", limit=10)
+        # flagSumOpenInterestValue, flagTopacclongShortRatio, flagTopposlongShortRatio, flagGloballongShortRatio = write_data(symbol, subpath="csvs", limit=10)
+        flagSumOpenInterestValue, flagGloballongShortRatio = write_data(symbol, subpath="csvs", limit=10)
         if flagSumOpenInterestValue:
             newHighList.append(symbol+"-市值")
-        if flagTopacclongShortRatio:
-            newHighList.append(symbol+"-大户多空比")
-        if flagTopposlongShortRatio:
-            newHighList.append(symbol+"-大户持仓多空比")
+        # if flagTopacclongShortRatio:
+            # newHighList.append(symbol+"-大户多空比")
+        # if flagTopposlongShortRatio:
+            # newHighList.append(symbol+"-大户持仓多空比")
         if flagGloballongShortRatio:
             newHighList.append(symbol+"-全网多空比")
 

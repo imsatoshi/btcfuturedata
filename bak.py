@@ -22,9 +22,6 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
     else:
         pdata = pd.DataFrame(columns='timestamp,sumOpenInterest,sumOpenInterestValue,topacclongShortRatio,toplongAccount,topshortAccount,topposlongShortRatio,longPosition,shortPosition,globallongShortRatio,globallongAccount,globalshortAccount,buySellRatio,sellVol,buyVol,openPrice,highPrice,lowPrice,closePrice'.split(","))
     max_sumopeninterestvalue = pdata["sumOpenInterestValue"].max()
-    maxTopLongShortAccountRatio = pdata["topacclongShortRatio"].max()
-    maxTopLongShortPositionRatio = pdata["topposlongShortRatio"].max()
-    maxTopGlobalLongShortAccountRatio = pdata["globallongShortRatio"].max()
     openInterestHist = binance.um.market.get_openInterestHist(symbol=symbol, period=period, limit=limit)
     openInterestHistMap = {}
     for tmp in openInterestHist["data"]:
@@ -38,8 +35,6 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
         topLongShortAccountRatioMap[tmp["timestamp"]]=tmp
         if tmp["timestamp"] not in existing_timestamps:
             timestamps.add(tmp["timestamp"])
-
-            
 
     topLongShortPositionRatio = binance.um.market.get_topLongShortPositionRatio(symbol=symbol, period=period, limit=limit)
     topLongShortPositionRatioMap = {}
@@ -117,12 +112,9 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
     if pd.isna(last_data["sumOpenInterestValue"]):
         last_data = pdata.iloc[-2]
 
-    flagSumOpenInterestValue = float(last_data["sumOpenInterestValue"]) > float(max_sumopeninterestvalue)  # 市值
-    flagTopacclongShortRatio = float(last_data["topacclongShortRatio"]) > float(maxTopLongShortPositionRatio)   # 大户多空比
-    flagTopposlongShortRatio = float(last_data["topposlongShortRatio"]) > float(maxTopLongShortPositionRatio)     # 大户持仓多空比
-    flagGloballongShortRatio = float(last_data["globallongShortRatio"]) > float(maxTopLongShortPositionRatio)     # 全局多空比
-    return flagSumOpenInterestValue, flagTopacclongShortRatio, flagTopposlongShortRatio, flagGloballongShortRatio
+    # print(float(pdata.iloc[-1]["sumOpenInterestValue"]), float(max_sumopeninterestvalue))
 
+    return float(pdata.iloc[-1]["sumOpenInterestValue"]) > float(max_sumopeninterestvalue)
 
 def figure_plot(filename, symbol, basepath="./figures/"):
     # visualize the data in the csv file using pandas
@@ -152,6 +144,7 @@ def figure_plot(filename, symbol, basepath="./figures/"):
 
 delists = [
     "SRM",
+    "USDC",
     "HNT",
     "TOMO",
     "CVC",
@@ -196,16 +189,10 @@ for m in markets:
                 flag = True
         if flag:
             continue
-
-        flagSumOpenInterestValue, flagTopacclongShortRatio, flagTopposlongShortRatio, flagGloballongShortRatio = write_data(symbol, subpath="csvs", limit=10)
-        if flagSumOpenInterestValue:
-            newHighList.append(symbol+"-市值")
-        if flagTopacclongShortRatio:
-            newHighList.append(symbol+"-大户多空比")
-        if flagTopposlongShortRatio:
-            newHighList.append(symbol+"-大户持仓多空比")
-        if flagGloballongShortRatio:
-            newHighList.append(symbol+"-全网多空比")
+        # print(m)
+        flag = write_data(symbol, subpath="csvs", limit=10)
+        if flag:
+            newHighList.append(symbol)
 
 if len(newHighList) > 0:
     for s in newHighList:

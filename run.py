@@ -1,6 +1,7 @@
 import os
 import requests
 import pbinance
+import pytz
 import pandas as pd
 import ccxt
 import matplotlib.pyplot as plt
@@ -192,6 +193,7 @@ for m in markets:
         if flagGloballongShortRatio:
             newHighList.append(symbol+"-全网多空比")
 
+tz = pytz.timezone('Asia/Shanghai')
 for s in newHighList:
     print(s)
     message = ""
@@ -199,7 +201,14 @@ for s in newHighList:
     last_data = data.iloc[-1]
 
     for c in cols:
-        message += "{}:\t{}\n".format(c, last_data[c])
+        if c == "timestamp":
+            timestamp = int(float(last_data[c])) / 1000
+            dt = datetime.datetime.fromtimestamp(timestamp)
+            utc8_dt = dt.astimezone(tz)
+            utc8_time_str = utc8_dt.strftime('%Y-%m-%d %H:%M:%S')
+            message += "{}:\t{}\n".format(c, utc8_time_str)
+        else:
+            message += "{}:\t{}\n".format(c, last_data[c])
     requests.post("https://api.day.app/Rn4sQCRDQr3TYNaBuKoGZe/{}/{}".format(s, message))
 
 repo_path = '/root/btcfuturedata'

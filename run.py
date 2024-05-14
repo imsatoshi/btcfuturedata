@@ -24,7 +24,7 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
     max_sumopeninterestvalue = pdata["sumOpenInterestValue"].max()
     maxTopLongShortAccountRatio = pdata["topacclongShortRatio"].max()
     maxTopLongShortPositionRatio = pdata["topposlongShortRatio"].max()
-    maxTopGlobalLongShortAccountRatio = pdata["globallongShortRatio"].max()
+    maxGlobalLongShortAccountRatio = pdata["globallongShortRatio"].max()
     openInterestHist = binance.um.market.get_openInterestHist(symbol=symbol, period=period, limit=limit)
     openInterestHistMap = {}
     for tmp in openInterestHist["data"]:
@@ -132,7 +132,7 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
     last_data = pdata.iloc[-1]
     if pd.isna(last_data["globallongShortRatio"]):
         last_data= pdata.iloc[-2]
-    flagGloballongShortRatio = float(last_data["globallongShortRatio"]) > float(maxTopLongShortPositionRatio)     # 全局多空比
+    flagGloballongShortRatio = float(last_data["globallongShortRatio"]) > float(maxGlobalLongShortAccountRatio)     # 全局多空比
     
     return flagSumOpenInterestValue, flagGloballongShortRatio
     # return flagSumOpenInterestValue, flagTopacclongShortRatio, flagTopposlongShortRatio, flagGloballongShortRatio

@@ -116,11 +116,26 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
     # check last_data sumOpenInterestVale 是不是nan
     if pd.isna(last_data["sumOpenInterestValue"]):
         last_data = pdata.iloc[-2]
-
     flagSumOpenInterestValue = float(last_data["sumOpenInterestValue"]) > float(max_sumopeninterestvalue)  # 市值
+
+
+    last_data = pdata.iloc[-1]
+    if pd.isna(last_data["topacclongShortRatio"]):
+        last_data= pdata.iloc[-2]
+
     flagTopacclongShortRatio = float(last_data["topacclongShortRatio"]) > float(maxTopLongShortPositionRatio)   # 大户多空比
+
+    last_data = pdata.iloc[-1]
+    if pd.isna(last_data["topposlongShortRatio"]):
+        last_data= pdata.iloc[-2]
     flagTopposlongShortRatio = float(last_data["topposlongShortRatio"]) > float(maxTopLongShortPositionRatio)     # 大户持仓多空比
+
+    last_data = pdata.iloc[-1]
+    if pd.isna(last_data["globallongShortRatio"]):
+        last_data= pdata.iloc[-2]
     flagGloballongShortRatio = float(last_data["globallongShortRatio"]) > float(maxTopLongShortPositionRatio)     # 全局多空比
+
+    
     return flagSumOpenInterestValue, flagTopacclongShortRatio, flagTopposlongShortRatio, flagGloballongShortRatio
 
 

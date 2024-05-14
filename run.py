@@ -202,10 +202,8 @@ for s in newHighList:
         message += "{}:\t{}\n".format(c, last_data[c])
     requests.post("https://api.day.app/Rn4sQCRDQr3TYNaBuKoGZe/{}/{}".format(s, message))
 
-
 repo_path = '/root/btcfuturedata'
 repo = Repo(repo_path)
 repo.git.add(all=True)
 repo.git.commit("-m", "auto submit!!!")
 repo.git.push()
-

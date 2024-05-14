@@ -207,15 +207,15 @@ for m in markets:
         if flagGloballongShortRatio:
             newHighList.append(symbol+"-全网多空比")
 
-if len(newHighList) > 0:
-    for s in newHighList:
-        message = ""
-        data = pd.read_csv("./csvs/{}.csv".format(s))
-        last_data = data.iloc[-1]
+for s in newHighList:
+    print(s)
+    message = ""
+    data = pd.read_csv("./csvs/{}.csv".format(s.split("-")[0]))
+    last_data = data.iloc[-1]
 
-        for c in cols:
-            message += "{}:\t{}\n".format(c, last_data[c])
-        requests.post("https://api.day.app/Rn4sQCRDQr3TYNaBuKoGZe/{}/{}".format(s, message))
+    for c in cols:
+        message += "{}:\t{}\n".format(c, last_data[c])
+    requests.post("https://api.day.app/Rn4sQCRDQr3TYNaBuKoGZe/{}/{}".format(s, message))
 
 # plot btc future data
 # for s in ['BTC', "ETH", "BNB"]:

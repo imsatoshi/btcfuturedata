@@ -6,26 +6,7 @@ import csv
 import matplotlib.pyplot
 import pandas as pd
 import matplotlib.pyplot as plt
-# os.chdir('/root/btcfuturedata')
 
-delists = [
-    "SRM",
-    "HNT",
-    "TOMO",
-    "CVC",
-    "CTK",
-    "BTS",
-    "BTCST",
-    "SC",
-    "DGB",
-    "RAY",
-    "ANT",
-    "FTT",
-    "FOOTBALL",
-    "BLUEBIRD",
-    "COCOS",
-    "STRAX"
-]
 
 def figure_plot(filename, symbol, basepath="./figures/"):
     # visualize the data in the csv file using pandas
@@ -71,10 +52,30 @@ def figure_plot(filename, symbol, basepath="./figures/"):
     plt.savefig(basepath+symbol+'_globalLongShortAccountRatio.png', dpi=300)
 
 
+
+def plot_one(filename, symbol, basepath="./figures/"):
+    # visualize the data in the csv file using pandas
+    pdata = pd.read_csv(filename)
+    pdata['timestamp'] = pd.to_datetime(pdata['timestamp'], unit='ms')
+    pdata.set_index('timestamp', inplace=True)
+    pdata["volume"] = pdata["sellVol"]+pdata["buyVol"]
+
+    # 合约持仓
+    openInterestHist="sumOpenInterest,sumOpenInterestValue".split(',')
+    openInterestHist.append("volume")
+    openInterestHist.append("globallongShortRatio") # 全网多空比
+    openInterestHist.append("closePrice")
+
+    plt.figure()
+    pdata[openInterestHist].plot(subplots=True)
+    plt.savefig(basepath+symbol+'.png', dpi=300)
+
+
+
 if len(sys.argv) > 1:
     symbol = sys.argv[1]
     f = os.path.join('./csvs', symbol+'.csv')
-    figure_plot(f, symbol)
+    plot_one(f, symbol)
     sys.exit(0)
 else:
     csvs = os.listdir('./csvs')
@@ -82,5 +83,6 @@ else:
         symbol = csv.split('.')[0]
         f = os.path.join('./csvs', csv)
         data = pd.read_csv(f)
-        figure_plot(f, symbol)
+        plot_one(f, symbol)
+
 

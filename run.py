@@ -206,7 +206,7 @@ for s in newHighList:
             dt = datetime.datetime.fromtimestamp(timestamp)
             utc8_dt = dt.astimezone(tz)
             utc8_time_str = utc8_dt.strftime('%Y-%m-%d %H:%M:%S')
-            message += "{}:\t{}\n".format(c, utc8_time_str)
+            message += "{}:\t{}\n".format("time", utc8_time_str)
         else:
             message += "{}:\t{}\n".format(c, last_data[c])
     requests.post("https://api.day.app/Rn4sQCRDQr3TYNaBuKoGZe/{}/{}".format(s, message))

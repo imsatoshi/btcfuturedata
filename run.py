@@ -39,8 +39,6 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
         if tmp["timestamp"] not in existing_timestamps:
             timestamps.add(tmp["timestamp"])
 
-            
-
     topLongShortPositionRatio = binance.um.market.get_topLongShortPositionRatio(symbol=symbol, period=period, limit=limit)
     topLongShortPositionRatioMap = {}
     for tmp in topLongShortPositionRatio["data"]:
@@ -83,8 +81,7 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
             oi = openInterestHistMap[tms]
             # 合约持仓, 合约持仓价值
             pdata.loc[pdata['timestamp']==tms, ["sumOpenInterest", "sumOpenInterestValue"]] = [oi["sumOpenInterest"], oi["sumOpenInterestValue"]]
-            # if oi["sumOpenInterestValue"] > max_sumopeninterestvalue:
-            #     print("new high value: ", symbol, oi["sumOpenInterestValue"])
+
         if topLongShortAccountRatioMap.get(tms, None) is not None:
             oi = topLongShortAccountRatioMap[tms]
             #  大户人数多空比, 大户多头占比，空头占比
@@ -105,11 +102,11 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
             #合约主动买卖量  buySellRatio,sellVol,buyVol
             pdata.loc[pdata['timestamp']==tms, ["buySellRatio", "sellVol", "buyVol"]] = [oi["buySellRatio"], oi["sellVol"], oi["buyVol"]]
 
-
         if pricesMap.get(tms, None) is not None:
             oi = pricesMap[tms]
             # 合约价格，开仓、高、低、关 openPrice,highPrice,lowPrice,closePrice
             pdata.loc[pdata['timestamp']==tms, ["openPrice", "highPrice", "lowPrice", "closePrice"]] = [oi[1], oi[2], oi[3], oi[4]]
+
     pdata[cols].to_csv(filename)
 
     last_data = pdata.iloc[-1]
@@ -121,9 +118,7 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
     # last_data = pdata.iloc[-1]
     # if pd.isna(last_data["topacclongShortRatio"]):
         # last_data= pdata.iloc[-2]
-
     # flagTopacclongShortRatio = float(last_data["topacclongShortRatio"]) > float(maxTopLongShortPositionRatio)   # 大户多空比
-
     # last_data = pdata.iloc[-1]
     # if pd.isna(last_data["topposlongShortRatio"]):
         # last_data= pdata.iloc[-2]
@@ -136,31 +131,6 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
     
     return flagSumOpenInterestValue, flagGloballongShortRatio
     # return flagSumOpenInterestValue, flagTopacclongShortRatio, flagTopposlongShortRatio, flagGloballongShortRatio
-
-
-def figure_plot(filename, symbol, basepath="./figures/"):
-    # visualize the data in the csv file using pandas
-    pdata = pd.read_csv(filename)
-    pdata['timestamp'] = pd.to_datetime(pdata['timestamp'], unit='ms')
-    pdata.set_index('timestamp', inplace=True)
-    pdata["volume"] = pdata["sellVol"]+pdata["buyVol"]
-
-    # 合约持仓
-    openInterestHist="sumOpenInterest,sumOpenInterestValue".split(',')
-    openInterestHist.append("volume")
-    openInterestHist.append("closePrice")
-
-    plt.figure()
-    pdata[openInterestHist].plot(subplots=True)
-    plt.savefig(basepath+symbol+'.png', dpi=300)
-
-    # 大户多空比
-
-
-    # 大户持仓多空比
-
-
-    # 全网多空比
 
 
 
@@ -231,11 +201,6 @@ for s in newHighList:
     for c in cols:
         message += "{}:\t{}\n".format(c, last_data[c])
     requests.post("https://api.day.app/Rn4sQCRDQr3TYNaBuKoGZe/{}/{}".format(s, message))
-
-# plot btc future data
-# for s in ['BTC', "ETH", "BNB"]:
-    # filename = "./csvs/{}USDT.csv".format(s)
-    # figure_plot(filename, s)
 
 
 repo_path = '/root/btcfuturedata'

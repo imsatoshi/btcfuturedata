@@ -138,6 +138,7 @@ def write_data(symbol, subpath="csvs", period="5m", limit=100):
 
 delists = [
     "SRM",
+    "SLP",
     "HNT",
     "TOMO",
     "CVC",

@@ -141,6 +141,7 @@ delists = [
     "SLP",
     "HNT",
     "TOMO",
+    "USDC",
     "CVC",
     "CTK",
     "BTS",

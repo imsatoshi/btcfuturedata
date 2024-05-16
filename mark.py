@@ -12,9 +12,10 @@ all_line = 0
 for csv in csvs:
     symbol = csv.split('.')[0]
     f = os.path.join('./csvs', csv)
+    train_f = os.path.join("./traindata", csv)
     df = pd.read_csv(f)
     # 将时间戳列转换为 datetime 类型
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    # df['timestamp'] = pd.to_datetime(df['timestamp'])
     df['closePrice'] = df['closePrice'].astype(float)
     df['buy'] = 0
     # 初始化标签列
@@ -35,28 +36,27 @@ for csv in csvs:
     num_buy += df[df['buy'] == 1].shape[0]
     all_line += df.shape[0]
 
-    df.to_csv(f)
+    df.to_csv(train_f)
 
-    # # 可视化
-    # plt.figure(figsize=(10, 6))
-    # # df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
-    # # df.set_index('timestamp', inplace=True)
-    # df['timestamp'] = pd.to_datetime(df['timestamp'])
-    # df.plot(x='timestamp', y='closePrice', label='Close Price', color='blue', ax=plt.gca())
-    # plt.scatter(df[df['buy'] == 1]['timestamp'], df[df['buy'] == 1]['closePrice'], color='green', label='Buy Signal')
+    # 可视化
+    plt.figure(figsize=(10, 6))
+    df['tt'] = pd.to_datetime(df['timestamp'], unit='ms')
+    df.set_index('timestamp', inplace=True)
 
-    # # plt.plot(df['timestamp'], df['closePrice'], label='Close Price', color='blue')
-    # # plt.scatter(df[df['buy'] == 1]['timestamp'], df[df['buy'] == 1]['closePrice'], color='green', label='Buy Signal')
-    # plt.xlabel('Timestamp')
-    # plt.ylabel('Close Price')
-    # plt.title('Close Price vs Timestamp with Buy Signal')
-    # plt.legend()
-    # plt.grid(True)
-    # plt.xticks(rotation=45)
-    # plt.tight_layout()
-    # plt.savefig("analysis/{}.png".format(symbol), dpi=300)
+    df.plot(x='tt', y='closePrice', label='Close Price', color='blue', ax=plt.gca())
+    plt.scatter(df[df['buy'] == 1]['tt'], df[df['buy'] == 1]['closePrice'], color='green', label='Buy Signal')
+
+    plt.xlabel('Timestamp')
+    plt.ylabel('Close Price')
+    plt.title('Close Price vs Timestamp with Buy Signal')
+    plt.legend()
+    plt.grid(True)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.savefig("analysis/{}.png".format(symbol), dpi=300)
 
 print(num_buy)
 print(all_line)
 ratio = 1.0 * num_buy / all_line
 print(ratio)
+

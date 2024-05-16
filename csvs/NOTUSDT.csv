@@ -1,3 +1,5 @@
 ,timestamp,sumOpenInterest,sumOpenInterestValue,topacclongShortRatio,toplongAccount,topshortAccount,topposlongShortRatio,longPosition,shortPosition,globallongShortRatio,globallongAccount,globalshortAccount,buySellRatio,sellVol,buyVol,openPrice,highPrice,lowPrice,closePrice
 0,1715865300000,,,,,,,,,,,,,,,0.00876614,0.00878950,0.00833819,0.00854489
-1,1715865600000,,,,,,,,,,,,,,,0.00854489,0.00864539,0.00844878,0.00862930
+2,1715865300000,,,,,,,,,,,,,,,0.00876614,0.00878950,0.00833819,0.00854489
+1,1715865600000,,,,,,,,,,,,,,,0.00854489,0.00882557,0.00844878,0.00864296
+3,1715865600000,,,,,,,,,,,,,,,0.00854489,0.00882557,0.00844878,0.00864296

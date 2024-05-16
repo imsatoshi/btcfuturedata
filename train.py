@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import tensorflow as tf
+
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
 from sklearn.preprocessing import MinMaxScaler
@@ -8,11 +8,11 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 
 # 读取数据
-df = pd.read_csv('./csvs/1000BONKUSDT.csv') 
+df = pd.read_csv('traindata/1000BONKUSDT.csv')  
 
 # 数据预处理
 # 删除包含 NaN 值的行
-df.dropna(inplace=True
+df.dropna(inplace=True)
 
 
 # 特征工程：将时间序列转换为序列数据
@@ -31,6 +31,7 @@ df = df[cols]
 X = df.drop(columns=['timestamp', 'buy']).values
 y = df['buy'].values
 scaler = MinMaxScaler()
+np.save('scaler_params.npy', [scaler.min_, scaler.scale_])
 
 # 创建序列数据
 X_seq, y_seq = create_sequences(X, y)
@@ -44,6 +45,7 @@ X_normalized = X_normalized_flat.reshape((-1, x_shape[1], x_shape[2]))
 
 # 划分训练集和测试集
 X_train, X_test, y_train, y_test = train_test_split(X_normalized, y_seq, test_size=0.2, random_state=42)
+
 
 
 # 构建深层循环神经网络模型

@@ -1,0 +1,62 @@
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
+
+n = 30
+p = 0.01
+p2 = 0.03
+
+csvs = os.listdir('./csvs')
+num_buy = 0
+all_line = 0
+for csv in csvs:
+    symbol = csv.split('.')[0]
+    f = os.path.join('./csvs', csv)
+    df = pd.read_csv(f)
+    # 将时间戳列转换为 datetime 类型
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df['closePrice'] = df['closePrice'].astype(float)
+    df['buy'] = 0
+    # 初始化标签列
+
+    # 计算未来十个单位时间内的最大涨幅，并找到第一个超过2%的点
+    for i in range(len(df) - n):
+        future_max_price = df['closePrice'].iloc[i:i+n].max()
+        future_min_price = df['closePrice'].iloc[i:i+n].min()
+
+        current_price = df['closePrice'].iloc[i]
+        if future_max_price > current_price * (1+p) and future_min_price > current_price * (1 - p2):
+            df.loc[i, 'buy'] = 1
+
+    df.dropna(inplace=True)
+    cols = "timestamp,sumOpenInterest,sumOpenInterestValue,topacclongShortRatio,toplongAccount,topshortAccount,topposlongShortRatio,longPosition,shortPosition,globallongShortRatio,globallongAccount,globalshortAccount,buySellRatio,sellVol,buyVol,openPrice,highPrice,lowPrice,closePrice,buy".split(",")
+
+    df = df[cols]
+    num_buy += df[df['buy'] == 1].shape[0]
+    all_line += df.shape[0]
+
+    df.to_csv(f)
+
+    # # 可视化
+    # plt.figure(figsize=(10, 6))
+    # # df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+    # # df.set_index('timestamp', inplace=True)
+    # df['timestamp'] = pd.to_datetime(df['timestamp'])
+    # df.plot(x='timestamp', y='closePrice', label='Close Price', color='blue', ax=plt.gca())
+    # plt.scatter(df[df['buy'] == 1]['timestamp'], df[df['buy'] == 1]['closePrice'], color='green', label='Buy Signal')
+
+    # # plt.plot(df['timestamp'], df['closePrice'], label='Close Price', color='blue')
+    # # plt.scatter(df[df['buy'] == 1]['timestamp'], df[df['buy'] == 1]['closePrice'], color='green', label='Buy Signal')
+    # plt.xlabel('Timestamp')
+    # plt.ylabel('Close Price')
+    # plt.title('Close Price vs Timestamp with Buy Signal')
+    # plt.legend()
+    # plt.grid(True)
+    # plt.xticks(rotation=45)
+    # plt.tight_layout()
+    # plt.savefig("analysis/{}.png".format(symbol), dpi=300)
+
+print(num_buy)
+print(all_line)
+ratio = 1.0 * num_buy / all_line
+print(ratio)

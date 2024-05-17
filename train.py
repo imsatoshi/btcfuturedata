@@ -4,11 +4,12 @@ import numpy as np
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
 from sklearn.preprocessing import MinMaxScaler
+from tensorflow.keras.utils import to_categorical
 
 from sklearn.model_selection import train_test_split
 
 # load data
-df = pd.read_csv('traindata/1000BONKUSDT.csv')
+df = pd.read_csv('traindata/UMAUSDT.csv')
 
 # data preprocessing, delete lines contain NaN
 df.dropna(inplace=True)
@@ -29,7 +30,13 @@ df = df[cols]
 
 # feature and label
 X = df.drop(columns=['timestamp', 'buy']).values
-y = df['buy'].values
+y0 = df['buy'].values
+
+
+# Convert the labels to categorical (one-hot encoding)
+y = to_categorical(y0, num_classes=3)
+
+
 scaler = MinMaxScaler()
 
 
@@ -48,21 +55,22 @@ X_train, X_test, y_train, y_test = train_test_split(X_normalized, y_seq, test_si
 
 # LSTM
 model = Sequential([
-    LSTM(units=128, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2])),
+    LSTM(units=256, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2])),
     Dropout(0.2),
-    LSTM(units=128, return_sequences=True),
+    LSTM(units=256, return_sequences=True),
     Dropout(0.2),
-    LSTM(units=128),
+    LSTM(units=256),
     Dropout(0.2),
-    Dense(units=1, activation='sigmoid')
+    Dense(units=3, activation='softmax')
 ])
 
 
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
 model.fit(X_train, y_train, epochs=1000, batch_size=32, validation_data=(X_test, y_test))
 
 test_loss, test_acc = model.evaluate(X_test, y_test)
 print('Test accuracy:', test_acc)
-model.save('models/1000BONKUSDT.h5')
+model.save('models/UMAUSDT.h5')
+
 

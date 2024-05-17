@@ -5,6 +5,10 @@ import matplotlib.pyplot as plt
 n = 30
 p = 0.01
 p2 = 0.03
+trainpath = "./traindata"
+
+if not os.path.isdir(trainpath):
+    os.mkdir(trainpath)
 
 csvs = os.listdir('./csvs')
 num_buy = 0
@@ -12,7 +16,7 @@ all_line = 0
 for csv in csvs:
     symbol = csv.split('.')[0]
     f = os.path.join('./csvs', csv)
-    train_f = os.path.join("./traindata", csv)
+    train_f = os.path.join(trainpath, csv)
     df = pd.read_csv(f)
     # 将时间戳列转换为 datetime 类型
     # df['timestamp'] = pd.to_datetime(df['timestamp'])
@@ -26,8 +30,12 @@ for csv in csvs:
         future_min_price = df['closePrice'].iloc[i:i+n].min()
 
         current_price = df['closePrice'].iloc[i]
+        # 1 means buy; -1 means sell; 0 means nothing
         if future_max_price > current_price * (1+p) and future_min_price > current_price * (1 - p2):
             df.loc[i, 'buy'] = 1
+        # if future_max_price > current_price * (1+p) and future_min_price > current_price * (1 - p2):
+        #     df.loc[i, 'buy'] = 1
+        
 
     df.dropna(inplace=True)
     cols = "timestamp,sumOpenInterest,sumOpenInterestValue,topacclongShortRatio,toplongAccount,topshortAccount,topposlongShortRatio,longPosition,shortPosition,globallongShortRatio,globallongAccount,globalshortAccount,buySellRatio,sellVol,buyVol,openPrice,highPrice,lowPrice,closePrice,buy".split(",")
@@ -59,4 +67,5 @@ print(num_buy)
 print(all_line)
 ratio = 1.0 * num_buy / all_line
 print(ratio)
+
 

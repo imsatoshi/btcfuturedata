@@ -215,7 +215,7 @@ for s in newHighList:
             message += "{}:\t{}\n".format("time", utc8_time_str)
         else:
             message += "{}:\t{}\n".format(c, last_data[c])
-    requests.post("https://api.day.app/Rn4sQCRDQr3TYNaBuKoGZe/{}/{}".format(s, message))
+    # requests.post("https://api.day.app/Rn4sQCRDQr3TYNaBuKoGZe/{}/{}".format(s, message))
 
 repo_path = '/root/btcfuturedata'
 repo = Repo(repo_path)

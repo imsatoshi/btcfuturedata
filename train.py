@@ -11,12 +11,14 @@ from tensorflow.keras.utils import to_categorical
 
 from sklearn.model_selection import train_test_split
 start_time = time.time()
-num_epoch = 800
+symbol = "APEUSDT"
+
+num_epoch = 10
 batch_size = 32
 
 
 # load data
-df = pd.read_csv('traindata/UMAUSDT.csv')
+df = pd.read_csv('traindata/{}.csv'.format(symbol))
 
 # data preprocessing, delete lines contain NaN
 df.dropna(inplace=True)
@@ -88,4 +90,5 @@ current_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 model.save(f'models/UMAUSDT_{current_time}.h5')
 
 print("Consuming Time: {}s".format(time.time() - start_time))
+
 

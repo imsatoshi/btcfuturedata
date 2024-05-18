@@ -1,4 +1,6 @@
 import time
+import datetime
+
 import pandas as pd
 import numpy as np
 
@@ -76,7 +78,14 @@ model.fit(X_train, y_train, epochs=num_epoch, batch_size=batch_size, validation_
 
 test_loss, test_acc = model.evaluate(X_test, y_test)
 print('Test accuracy:', test_acc)
-model.save('models/UMAUSDT.h5')
 
+
+
+# 获取当前时间
+current_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+
+# 保存模型，带有时间戳
+model.save(f'models/UMAUSDT_{current_time}.h5')
 
 print("Consuming Time: {}s".format(time.time() - start_time))
+

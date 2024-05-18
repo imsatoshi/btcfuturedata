@@ -5,7 +5,7 @@ import numpy as np
 from datetime import datetime
 
 import pbinance
-symbol = "1000BONKUSDT"
+symbol = "APEUSDT"
 period = "5m"
 limit = 10
 
@@ -111,11 +111,12 @@ if last_openInterestHist["timestamp"] == last_toplongposRatio["timestamp"] == la
    X_ = X_flat.reshape((1, vshape[0], vshape[1]))
 
    # 加载模型
-   model = load_model('models/1000BONKUSDT.h5')
+   model = load_model('models/{}.h5'.format(symbol))
 
    # 对新数据进行预测
    predicted_labels = model.predict(X_)
 
    # 输出预测结果
    print(predicted_labels)
+
 

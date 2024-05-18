@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 start_time = time.time()
 symbol = "APEUSDT"
 
-num_epoch = 10
+num_epoch = 800
 batch_size = 32
 
 
@@ -87,7 +87,7 @@ print('Test accuracy:', test_acc)
 current_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
 # 保存模型，带有时间戳
-model.save(f'models/UMAUSDT_{current_time}.h5')
+model.save(f'models/{symbol}_{current_time}.h5')
 
 print("Consuming Time: {}s".format(time.time() - start_time))
 

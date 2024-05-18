@@ -1,3 +1,5 @@
+import os
+import sys
 import time
 from tensorflow.keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
@@ -10,6 +12,25 @@ symbol = "APEUSDT"
 period = "5m"
 limit = 10
 
+model_folder = 'models/'  # 模型文件夹路径
+
+# 获取模型文件夹下所有模型文件
+model_files = [f for f in os.listdir(model_folder) if f.endswith('.h5')]
+latest_model_file = ""
+if model_files:  # 检查是否有模型文件
+    # 提取时间戳并排序
+    timestamps = [int(f.split('_')[-1].split('.')[0]) for f in model_files]
+    max_timestamp_index = timestamps.index(max(timestamps))
+    latest_model_file = model_files[max_timestamp_index]
+    
+    # 打印最新模型文件名
+    print("最新的模型文件:", latest_model_file)
+else:
+    print("模型文件夹中没有模型文件。")
+    sys.exit()
+
+model_path = "{}/{}".format(model_folder, latest_model_file)
+print(model_path)
 # 读取数据
 df = pd.read_csv('traindata/{}.csv'.format(symbol))
 
@@ -112,7 +133,7 @@ if last_openInterestHist["timestamp"] == last_toplongposRatio["timestamp"] == la
    X_ = X_flat.reshape((1, vshape[0], vshape[1]))
 
    # 加载模型
-   model = load_model('models/{}.h5'.format(symbol))
+   model = load_model(model_path)
 
    # 对新数据进行预测
    predicted_labels = model.predict(X_)
@@ -124,3 +145,4 @@ if last_openInterestHist["timestamp"] == last_toplongposRatio["timestamp"] == la
 end_time = time.time()
 
 print("prediction consume {} s".format(end_time - start_time))
+

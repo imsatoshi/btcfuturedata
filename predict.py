@@ -1,10 +1,11 @@
+import time
 from tensorflow.keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 import numpy as np
 from datetime import datetime
-
 import pbinance
+start_time = time.time()
 symbol = "APEUSDT"
 period = "5m"
 limit = 10
@@ -120,3 +121,6 @@ if last_openInterestHist["timestamp"] == last_toplongposRatio["timestamp"] == la
    print(predicted_labels)
 
 
+end_time = time.time()
+
+print("prediction consume {} s".format(end_time - start_time))

@@ -51,7 +51,7 @@ for csv in csvs:
     if max_buy_sell < 1.0*(num_buy + num_sell) / df.shape[0]:
         max_buy_sell = 1.0 * (num_buy+num_sell) / df.shape[0]
         max_symbol = symbol
-        print(symbol, max_buy_sell)
+        print(symbol, max_buy_sell, df.shape[0])
 
     df.to_csv(train_f)
 
@@ -75,4 +75,5 @@ for csv in csvs:
     # plt.savefig("analysis/{}.png".format(symbol), dpi=300)
 
 print("Max:\t", max_symbol, max_buy_sell)
+
 

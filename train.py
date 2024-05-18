@@ -1,4 +1,4 @@
-import os
+import time
 import pandas as pd
 import numpy as np
 
@@ -8,18 +8,11 @@ from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.utils import to_categorical
 
 from sklearn.model_selection import train_test_split
-modelpath = "./models"
-trainpath = "./traindata"
-
-symbol = "UMAUSDT"
-
-if not os.path.isdir(modelpath):
-    os.mkdir(modelpath)
-
+start_time = time.time()
 
 
 # load data
-df = pd.read_csv('{}/{}.csv'.format(trainpath, symbol))
+df = pd.read_csv('traindata/UMAUSDT.csv')
 
 # data preprocessing, delete lines contain NaN
 df.dropna(inplace=True)
@@ -81,7 +74,7 @@ model.fit(X_train, y_train, epochs=1000, batch_size=32, validation_data=(X_test,
 
 test_loss, test_acc = model.evaluate(X_test, y_test)
 print('Test accuracy:', test_acc)
-model.save('{}/{}.h5'.format(modelpath, symbol))
+model.save('models/UMAUSDT.h5')
 
 
-
+print("Consuming Time: {}s".format(time.time() - start_time))

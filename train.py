@@ -9,6 +9,8 @@ from tensorflow.keras.utils import to_categorical
 
 from sklearn.model_selection import train_test_split
 start_time = time.time()
+num_epoch = 800
+batch_size = 32
 
 
 # load data
@@ -70,7 +72,7 @@ model = Sequential([
 
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-model.fit(X_train, y_train, epochs=1000, batch_size=32, validation_data=(X_test, y_test))
+model.fit(X_train, y_train, epochs=num_epoch, batch_size=batch_size, validation_data=(X_test, y_test))
 
 test_loss, test_acc = model.evaluate(X_test, y_test)
 print('Test accuracy:', test_acc)

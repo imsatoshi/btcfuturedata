@@ -1,4 +1,17 @@
 import os
+import subprocess
+
+# 执行 git pull 命令
+def git_pull():
+    try:
+        subprocess.run(["git", "pull"])
+    except Exception as e:
+        print("Error occurred while executing git pull:", e)
+
+# 在 mark.py 运行前执行 git pull
+git_pull()
+
+
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -28,7 +41,6 @@ for csv in csvs:
     df['buy'] = 0
     # 初始化标签列
 
-    # 计算未来十个单位时间内的最大涨幅，并找到第一个超过2%的点
     for i in range(len(df) - n):
         future_max_price = df['closePrice'].iloc[i:i+n].max()
         future_min_price = df['closePrice'].iloc[i:i+n].min()
@@ -55,7 +67,6 @@ for csv in csvs:
 
     df.to_csv(train_f)
 
-    # 可视化
     # plt.figure(figsize=(10, 6))
     # df['tt'] = pd.to_datetime(df['timestamp'], unit='ms')
     # df.set_index('timestamp', inplace=True)
@@ -75,5 +86,6 @@ for csv in csvs:
     # plt.savefig("analysis/{}.png".format(symbol), dpi=300)
 
 print("Max:\t", max_symbol, max_buy_sell)
+
 
 

@@ -10,6 +10,22 @@ from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 
 
+import os
+import subprocess
+import time
+
+def run_mark_script():
+    """
+    执行 mark.py 脚本
+    """
+    try:
+        # 使用 subprocess 模块执行 mark.py 脚本
+        subprocess.run(["python", "mark.py"])
+    except Exception as e:
+        print("Error occurred while executing mark.py:", e)
+
+
+
 start_time = time.time()
 symbol = "APEUSDT"
 num_epoch = 700
@@ -75,5 +91,7 @@ def train_model(symbol, sequence_length=sequence_length, num_epoch=num_epoch, ba
 
 
 if __name__ == "__main__":
+    run_mark_script()
     train_model(symbol)
+
 

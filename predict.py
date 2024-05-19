@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 import pbinance
+from train import create_sequences
 start_time = time.time()
 symbol = "APEUSDT"
 period = "5m"
@@ -20,15 +21,14 @@ model_folder = 'models'  # 模型文件夹路径
 
 def get_scaler():
     # 读取数据
-    df = pd.read_csv('traindata/{}.csv'.format(symbol))
+    df = pd.read_csv('scaler.csv')
     df = df[cols]
     # 数据预处理, 删除包含 NaN 值的行
     df.dropna(inplace=True)
     X = df.drop(columns=['timestamp', 'buy']).values
     y = df['buy'].values
     scaler = MinMaxScaler()
-    X_seq, y_seq = create_sequences(X, y)
-
+    X_seq, _ = create_sequences(X, y)
     # 归一化处理
     scaler = MinMaxScaler()
     scaler.fit_transform(X_seq.reshape(-1, X_seq.shape[-1]))
@@ -86,12 +86,12 @@ def predict_data(symbol=symbol):
     requests.post("https://api.day.app/Rn4sQCRDQr3TYNaBuKoGZe/{}/{}".format(title, message))
 
 
-def create_sequences(X, y, sequence_length=10):
-    X_sequences, y_sequences = [], []
-    for i in range(sequence_length, len(X)):
-        X_sequences.append(X[i-sequence_length:i])
-        y_sequences.append(y[i])  # 对应的标签就是当前行的y值
-    return np.array(X_sequences), np.array(y_sequences)
+# def create_sequences(X, y, sequence_length=10):
+#     X_sequences, y_sequences = [], []
+#     for i in range(sequence_length, len(X)):
+#         X_sequences.append(X[i-sequence_length:i])
+#         y_sequences.append(y[i])  # 对应的标签就是当前行的y值
+#     return np.array(X_sequences), np.array(y_sequences)
 
 
 def get_current_timestamp():
@@ -171,4 +171,5 @@ if __name__ == "__main__":
     start_time = time.time()
     predict_data(symbol)
     print("prediction consume {} s".format(time.time() - start_time))
+
 

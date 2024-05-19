@@ -31,7 +31,7 @@ delists = [
 ]
 
 
-def write_data(symbol, subpath="csvs", period="5m", limit=100):
+def write_data(symbol, subpath="csvs", period="5m", limit=200):
     timestamps = set()
     binance = pbinance.Binance("", "")
     filename = "./{}/{}.csv".format(subpath, symbol)

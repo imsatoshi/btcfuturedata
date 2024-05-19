@@ -71,7 +71,7 @@ def predict_data(symbol=symbol):
     # 输出预测结果
     print(predicted_labels)    
     label = ["buy", "nothing", "sell"][predicted_labels.argmax()]
-    title = label
+    title = label + "-" + latest_model_file
     message = ""
     message += ",".join([str(_) for _ in predicted_labels[0].tolist()])
     message += ",".join([str(_) for _ in sumOpenInterests])+"\n"
